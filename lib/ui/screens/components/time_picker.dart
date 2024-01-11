@@ -21,7 +21,6 @@ class _TimePickerState extends State<TimePicker> {
   @override
   Widget build(BuildContext context) {
     return DateTimeField(
-      // controller: controller,
       validator: (value) => value == null ? "This field cantbe empty" : null,
       decoration: const InputDecoration(
         isDense: true,

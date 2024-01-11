@@ -5,70 +5,81 @@ import 'package:event_calendar_task/ui/screens/components/time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddEventDialog extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+class AddEventDialog extends StatefulWidget {
   final DateTime currentDateTime;
   final int idNewEntity;
 
-  AddEventDialog({
+  const AddEventDialog({
     super.key,
     required this.currentDateTime,
     required this.idNewEntity,
   });
 
-  String? title;
+  @override
+  State<AddEventDialog> createState() => _AddEventDialogState();
+}
+
+class _AddEventDialogState extends State<AddEventDialog> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController titleController = TextEditingController();
   DateTime? newDateTime;
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
         scrollable: true,
         actionsAlignment: MainAxisAlignment.center,
-        title: Form(
+        title: Column(
+          children: [
+            const Text("Event "),
+            Text(
+                " ${widget.currentDateTime.day} - ${widget.currentDateTime.month} - ${widget.currentDateTime.year}"),
+          ],
+        ),
+        content: Form(
           key: _formKey,
           child: Column(
             children: [
-              const Text("Event "),
-              Text(" ${currentDateTime.day} - ${currentDateTime.month} - ${currentDateTime.year}"),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextFormField(
+                  decoration: const InputDecoration(hintText: "Title"),
+                  validator: (value) =>
+                      value == null || value.isEmpty ? "This field cantbe empty" : null,
+                  controller: titleController,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TimePicker(
+                  title: 'Time',
+                  currentDateTime: widget.currentDateTime,
+                  onChanged: (dateTime) => newDateTime = dateTime,
+                ),
+              ),
             ],
           ),
         ),
-        content: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                decoration: const InputDecoration(hintText: "Title"),
-                validator: (value) =>
-                    value == null || value.isEmpty ? "This field cantbe empty" : null,
-                onChanged: (value) => title = value,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TimePicker(
-                title: 'Time',
-                currentDateTime: currentDateTime,
-                onChanged: (dateTime) => newDateTime = dateTime,
-              ),
-            ),
-          ],
-        ),
         actions: [
-          BlocProvider.value(
-            value: BlocProvider.of<CalendarCubit>(context),
-            child: AppButton.outline(
-              title: "Add event",
-              onTap: () {
-                if (_formKey.currentState!.validate()) {
-                  BlocProvider.of<CalendarCubit>(context).addEventWrapper(
-                    dateTime: currentDateTime,
-                    event: EventEntity(id: 1, title: title!, dateTime: newDateTime!),
-                  );
-                }
-              },
-            ),
-          )
+          AppButton.outline(
+            title: "Add event",
+            onTap: () {
+              if (_formKey.currentState!.validate()) {
+                context.read<CalendarCubit>().addEventWrapper(
+                      dateTime: widget.currentDateTime,
+                      event:
+                          EventEntity(id: 1, title: titleController.text, dateTime: newDateTime!),
+                    );
+                Navigator.pop(context);
+              }
+            },
+          ),
         ]);
   }
 }

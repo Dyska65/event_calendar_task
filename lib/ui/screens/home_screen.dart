@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:table_calendar/table_calendar.dart';
 
+import 'package:table_calendar/table_calendar.dart';
 import 'package:event_calendar_task/ui/screens/components/add_event_dialog.dart';
 import 'package:event_calendar_task/bloc/calendar_bloc.dart';
 import 'package:event_calendar_task/ui/screens/components/button_outline.dart';
@@ -98,9 +98,12 @@ class _HomePageState extends State<HomePage> {
           // ignore: use_build_context_synchronously
           showDialog(
             context: context,
-            builder: (c) => AddEventDialog(
-              currentDateTime: focusedDay,
-              idNewEntity: idNewEntity,
+            builder: (c) => BlocProvider.value(
+              value: context.read<CalendarCubit>(),
+              child: AddEventDialog(
+                currentDateTime: focusedDay,
+                idNewEntity: idNewEntity,
+              ),
             ),
           );
         },
