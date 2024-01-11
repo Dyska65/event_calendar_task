@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 import 'package:event_calendar_task/ui/screens/components/add_event_dialog.dart';
@@ -19,6 +20,8 @@ class _HomePageState extends State<HomePage> {
   DateTime focusedDay = DateTime.now();
   CalendarFormat calendarFormat = CalendarFormat.month;
   bool isShowCalendar = true;
+  DateTime headerDateTime = DateTime.now();
+  PageController? calendarController;
 
   @override
   Widget build(BuildContext context) {
@@ -35,35 +38,23 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-                    AppButton.outline(
-                      title: "Day",
-                      onTap: () => changeCalendarFormat(CalendarPeriod.day),
-                    ),
-                    AppButton.outline(
-                      title: "Week",
-                      onTap: () => changeCalendarFormat(CalendarPeriod.week),
-                    ),
-                    AppButton.outline(
-                      title: "Month",
-                      onTap: () => changeCalendarFormat(CalendarPeriod.month),
-                    )
-                  ]),
+                  child: _buildHeaderHomeScreen(),
                 ),
                 if (isShowCalendar)
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TableCalendar(
-                      headerVisible: true,
-                      firstDay: DateTime.utc(2024, 1, 1),
-                      lastDay: DateTime.utc(2025, 1, 1),
-                      currentDay: DateTime.now(),
-                      focusedDay: focusedDay,
-                      calendarFormat: calendarFormat,
-                      selectedDayPredicate: (day) => isSameDay(day, focusedDay),
-                      onDaySelected: (selected, focused) => onDaySelected(selected),
-                    ),
-                  ),
+                      padding: const EdgeInsets.all(8.0),
+                      child: TableCalendar(
+                        headerVisible: false,
+                        firstDay: DateTime.utc(2024, 1, 1),
+                        lastDay: DateTime.utc(2025, 1, 1),
+                        currentDay: DateTime.now(),
+                        focusedDay: focusedDay,
+                        calendarFormat: calendarFormat,
+                        selectedDayPredicate: (day) => isSameDay(day, focusedDay),
+                        onDaySelected: (selected, focused) => onDaySelected(selected),
+                        onPageChanged: (dateTime) => setState(() => headerDateTime = dateTime),
+                        onCalendarCreated: (pageController) => calendarController = pageController,
+                      )),
                 Divider(
                   color: Theme.of(context).colorScheme.primary,
                   height: 10,
@@ -111,6 +102,54 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Row _buildHeaderHomeScreen() {
+    return Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+      IconButton(
+        onPressed: () {
+          focusedDay = DateUtils.addMonthsToMonthDate(focusedDay, -1);
+          if (DateUtils.isSameMonth(focusedDay, DateTime.now())) {
+            focusedDay = DateTime.now();
+          }
+          calendarController?.previousPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.bounceIn,
+          );
+        },
+        icon: const Icon(Icons.chevron_left),
+      ),
+      Text(
+        DateFormat('MMMM y').format(headerDateTime),
+        style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+      ),
+      const Spacer(),
+      AppButton.outline(
+        title: "Day",
+        onTap: () => changeCalendarFormat(CalendarPeriod.day),
+      ),
+      AppButton.outline(
+        title: "Week",
+        onTap: () => changeCalendarFormat(CalendarPeriod.week),
+      ),
+      AppButton.outline(
+        title: "Month",
+        onTap: () => changeCalendarFormat(CalendarPeriod.month),
+      ),
+      IconButton(
+        onPressed: () {
+          focusedDay = DateUtils.addMonthsToMonthDate(focusedDay, 1);
+          if (DateUtils.isSameMonth(focusedDay, DateTime.now())) {
+            focusedDay = DateTime.now();
+          }
+          calendarController?.nextPage(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.bounceIn,
+          );
+        },
+        icon: const Icon(Icons.chevron_right),
+      )
+    ]);
   }
 
   changeCalendarFormat(CalendarPeriod calendarPeriod) {

@@ -43,7 +43,7 @@ class CalendarCubit extends Cubit<CalendarState> {
     try {
       List<EventEntity> events = await _getEventsByDay(currentDateTime);
       events.removeWhere((element) => element.id == event.id);
-      print(events);
+
       _saveEventsByDay(currentDateTime, events);
 
       emit(CalendarSuccess(events: events));
@@ -57,7 +57,6 @@ class CalendarCubit extends Cubit<CalendarState> {
     try {
       List<EventEntity> events = await _getEventsByDay(dateTime);
       events.sort((a, b) => a.id.compareTo(b.id));
-      print(events);
       return events.last.id + 1;
     } catch (e) {
       return -1;

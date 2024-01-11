@@ -69,14 +69,19 @@ class _AddEventDialogState extends State<AddEventDialog> {
         actions: [
           AppButton.outline(
             title: "Add event",
-            onTap: () {
+            onTap: () async {
               if (_formKey.currentState!.validate()) {
-                context.read<CalendarCubit>().addEventWrapper(
-                      dateTime: widget.currentDateTime,
-                      event:
-                          EventEntity(id: 1, title: titleController.text, dateTime: newDateTime!),
-                    );
-                Navigator.pop(context);
+                int id = await context
+                    .read<CalendarCubit>()
+                    .getNewEventIndexByDateTime(widget.currentDateTime);
+                if (mounted) {
+                  context.read<CalendarCubit>().addEventWrapper(
+                        dateTime: widget.currentDateTime,
+                        event: EventEntity(
+                            id: id, title: titleController.text, dateTime: newDateTime!),
+                      );
+                  Navigator.pop(context);
+                }
               }
             },
           ),
