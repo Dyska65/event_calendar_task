@@ -86,17 +86,18 @@ class _HomePageState extends State<HomePage> {
         onPressed: () async {
           int idNewEntity =
               await BlocProvider.of<CalendarCubit>(context).getNewEventIndexByDateTime(focusedDay);
-          // ignore: use_build_context_synchronously
-          showDialog(
-            context: context,
-            builder: (c) => BlocProvider.value(
-              value: context.read<CalendarCubit>(),
-              child: AddEventDialog(
-                currentDateTime: focusedDay,
-                idNewEntity: idNewEntity,
+          if (mounted) {
+            showDialog(
+              context: context,
+              builder: (c) => BlocProvider.value(
+                value: context.read<CalendarCubit>(),
+                child: AddEventDialog(
+                  currentDateTime: focusedDay,
+                  idNewEntity: idNewEntity,
+                ),
               ),
-            ),
-          );
+            );
+          }
         },
         tooltip: 'Add event',
         child: const Icon(Icons.add),

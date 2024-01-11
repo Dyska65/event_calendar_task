@@ -1,5 +1,6 @@
 import 'package:event_calendar_task/data/entity/event.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ListEvents extends StatelessWidget {
   final List<EventEntity> events;
@@ -15,7 +16,8 @@ class ListEvents extends StatelessWidget {
       itemBuilder: (BuildContext context, int index) {
         EventEntity event = events[index];
         return ListTile(
-          leading: Text("${event.dateTime.hour}:${event.dateTime.minute}"),
+          leading: Text(
+              "${DateFormat('dd/MM/yy hh:mm').format(event.startDateTime)} - ${DateFormat('dd/MM/yy hh:mm').format(event.endDateTime)}"),
           title: Text(event.title),
           titleAlignment: ListTileTitleAlignment.center,
           trailing: IconButton(

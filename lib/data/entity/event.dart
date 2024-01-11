@@ -3,37 +3,43 @@ import 'dart:convert';
 class EventEntity {
   final int id;
   final String title;
-  final DateTime dateTime;
+  final DateTime startDateTime;
+  final DateTime endDateTime;
 
   EventEntity({
     required this.id,
     required this.title,
-    required this.dateTime,
+    required this.startDateTime,
+    required this.endDateTime,
   });
 
   factory EventEntity.fromMap(Map<String, dynamic> json) {
     return EventEntity(
       id: json["id"],
       title: json["title"],
-      dateTime: DateTime.fromMicrosecondsSinceEpoch(json["dateTime"]),
+      startDateTime: DateTime.fromMicrosecondsSinceEpoch(json["startDateTime"]),
+      endDateTime: DateTime.fromMicrosecondsSinceEpoch(json["endDateTime"]),
     );
   }
 
   Map<String, dynamic> toMap() => {
         "id": id,
         "title": title,
-        "dateTime": dateTime.microsecondsSinceEpoch,
+        "startDateTime": startDateTime.microsecondsSinceEpoch,
+        "endDateTime": endDateTime.microsecondsSinceEpoch,
       };
 
   EventEntity copyWith({
     int? id,
     String? title,
-    DateTime? dateTime,
+    DateTime? startDateTime,
+    DateTime? endDateTime,
   }) {
     return EventEntity(
       id: id ?? this.id,
       title: title ?? this.title,
-      dateTime: dateTime ?? this.dateTime,
+      startDateTime: startDateTime ?? this.startDateTime,
+      endDateTime: endDateTime ?? this.endDateTime,
     );
   }
 
@@ -43,5 +49,6 @@ class EventEntity {
       EventEntity.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
-  String toString() => 'Event(id: $id, title: $title, dateTime: $dateTime)';
+  String toString() =>
+      'Event(id: $id, title: $title, startDateTime: $startDateTime, endDateTime: $endDateTime)';
 }

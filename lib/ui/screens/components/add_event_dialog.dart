@@ -1,7 +1,7 @@
 import 'package:event_calendar_task/bloc/calendar_bloc.dart';
 import 'package:event_calendar_task/data/entity/event.dart';
 import 'package:event_calendar_task/ui/screens/components/button_outline.dart';
-import 'package:event_calendar_task/ui/screens/components/time_picker.dart';
+import 'package:event_calendar_task/ui/screens/components/datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,7 +22,8 @@ class AddEventDialog extends StatefulWidget {
 class _AddEventDialogState extends State<AddEventDialog> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController titleController = TextEditingController();
-  DateTime? newDateTime;
+  DateTime? startDateTime;
+  DateTime? endDateTime;
 
   @override
   void dispose() {
@@ -57,10 +58,16 @@ class _AddEventDialogState extends State<AddEventDialog> {
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: TimePicker(
-                  title: 'Time',
-                  currentDateTime: widget.currentDateTime,
-                  onChanged: (dateTime) => newDateTime = dateTime,
+                child: DateTimePicker(
+                  title: 'Start time',
+                  onChanged: (dateTime) => startDateTime = dateTime,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: DateTimePicker(
+                  title: 'End time',
+                  onChanged: (dateTime) => endDateTime = dateTime,
                 ),
               ),
             ],
@@ -78,8 +85,13 @@ class _AddEventDialogState extends State<AddEventDialog> {
                   context.read<CalendarCubit>().addEventWrapper(
                         dateTime: widget.currentDateTime,
                         event: EventEntity(
-                            id: id, title: titleController.text, dateTime: newDateTime!),
+                          id: id,
+                          title: titleController.text,
+                          startDateTime: startDateTime!,
+                          endDateTime: endDateTime!,
+                        ),
                       );
+
                   Navigator.pop(context);
                 }
               }

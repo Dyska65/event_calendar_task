@@ -13,33 +13,39 @@ class CalendarCubit extends Cubit<CalendarState> {
   }
 
   Future<void> getEventsByDayWrapper(DateTime dateTime) async {
-    emit(CalendarLoading());
+    emit(CalendarLoading(events: state.events));
     try {
       List<EventEntity> events = await _getEventsByDay(dateTime);
       emit(CalendarSuccess(events: events));
     } catch (e) {
       debugPrint(e.toString());
-      emit(CalendarError(errorMessage: e.toString()));
+      emit(CalendarError(errorMessage: e.toString(), events: state.events));
     }
   }
 
   Future<void> addEventWrapper({required DateTime dateTime, required EventEntity event}) async {
-    emit(CalendarLoading());
+    emit(CalendarLoading(events: state.events));
     try {
-      List<EventEntity> events = await _getEventsByDay(dateTime);
-      events.add(event);
+      int durationEvent = DateUtils.dateOnly(event.endDateTime)
+          .difference(DateUtils.dateOnly(event.startDateTime))
+          .inDays;
 
-      _saveEventsByDay(dateTime, events);
+      for (var i = 0; i <= durationEvent; i++) {
+        final DateTime date = DateUtils.addDaysToDate(event.startDateTime, i);
+        _saveEventsByDay(date, [...await _getEventsByDay(date), event]);
+      }
 
-      emit(CalendarSuccess(events: events));
+      emit(CalendarSuccess(events: [...state.events, event]));
     } catch (e) {
       debugPrint(e.toString());
-      emit(CalendarError(errorMessage: e.toString()));
+      emit(CalendarError(errorMessage: e.toString(), events: state.events));
     }
   }
 
   Future<void> removeEvent(EventEntity event, DateTime currentDateTime) async {
-    emit(CalendarLoading());
+    emit(
+      CalendarLoading(events: state.events),
+    );
     try {
       List<EventEntity> events = await _getEventsByDay(currentDateTime);
       events.removeWhere((element) => element.id == event.id);
@@ -49,7 +55,7 @@ class CalendarCubit extends Cubit<CalendarState> {
       emit(CalendarSuccess(events: events));
     } catch (e) {
       debugPrint(e.toString());
-      emit(CalendarError(errorMessage: e.toString()));
+      emit(CalendarError(errorMessage: e.toString(), events: state.events));
     }
   }
 

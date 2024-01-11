@@ -1,7 +1,8 @@
-import 'package:event_calendar_task/bloc/calendar_bloc.dart';
-import 'package:event_calendar_task/ui/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:event_calendar_task/bloc/calendar_bloc.dart';
+import 'package:event_calendar_task/ui/screens/home_screen/home_screen.dart';
 
 void main() {
   runApp(const MyApp());

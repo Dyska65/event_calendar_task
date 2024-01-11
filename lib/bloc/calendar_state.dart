@@ -10,14 +10,14 @@ class CalendarInitial extends CalendarState {
 }
 
 class CalendarLoading extends CalendarState {
-  CalendarLoading({super.events = const []});
+  CalendarLoading({required super.events});
 }
 
 class CalendarError extends CalendarState {
   final String errorMessage;
-  CalendarError({super.events = const [], required this.errorMessage});
+  CalendarError({required super.events, required this.errorMessage});
 }
 
 class CalendarSuccess extends CalendarState {
-  CalendarSuccess({super.events = const []});
+  CalendarSuccess({required super.events});
 }
