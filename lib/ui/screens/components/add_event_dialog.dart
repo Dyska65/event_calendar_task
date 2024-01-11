@@ -1,29 +1,42 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:event_calendar_task/bloc/calendar_bloc.dart';
 import 'package:event_calendar_task/data/entity/event.dart';
 import 'package:event_calendar_task/ui/screens/components/button_outline.dart';
 import 'package:event_calendar_task/ui/screens/components/datetime_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddEventDialog extends StatefulWidget {
+class EventDialog extends StatefulWidget {
   final DateTime currentDateTime;
   final int idNewEntity;
+  final EventEntity? event;
+  final String titleButton;
 
-  const AddEventDialog({
+  const EventDialog({
     super.key,
     required this.currentDateTime,
     required this.idNewEntity,
+    required this.titleButton,
+    this.event,
   });
 
   @override
-  State<AddEventDialog> createState() => _AddEventDialogState();
+  State<EventDialog> createState() => _EventDialogState();
 }
 
-class _AddEventDialogState extends State<AddEventDialog> {
+class _EventDialogState extends State<EventDialog> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController titleController = TextEditingController();
   DateTime? startDateTime;
   DateTime? endDateTime;
+
+  @override
+  void initState() {
+    titleController.text = widget.event?.title ?? "";
+    startDateTime = widget.event?.startDateTime;
+    endDateTime = widget.event?.endDateTime;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -60,6 +73,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 padding: const EdgeInsets.all(8.0),
                 child: DateTimePicker(
                   title: 'Start time',
+                  initialValue: startDateTime,
                   onChanged: (dateTime) => startDateTime = dateTime,
                 ),
               ),
@@ -67,6 +81,7 @@ class _AddEventDialogState extends State<AddEventDialog> {
                 padding: const EdgeInsets.all(8.0),
                 child: DateTimePicker(
                   title: 'End time',
+                  initialValue: endDateTime,
                   onChanged: (dateTime) => endDateTime = dateTime,
                 ),
               ),
@@ -75,28 +90,48 @@ class _AddEventDialogState extends State<AddEventDialog> {
         ),
         actions: [
           AppButton.outline(
-            title: "Add event",
+            title: widget.titleButton,
             onTap: () async {
               if (_formKey.currentState!.validate()) {
-                int id = await context
-                    .read<CalendarCubit>()
-                    .getNewEventIndexByDateTime(widget.currentDateTime);
-                if (mounted) {
-                  context.read<CalendarCubit>().addEventWrapper(
-                        dateTime: widget.currentDateTime,
-                        event: EventEntity(
-                          id: id,
-                          title: titleController.text,
-                          startDateTime: startDateTime!,
-                          endDateTime: endDateTime!,
-                        ),
-                      );
-
-                  Navigator.pop(context);
+                if (widget.titleButton == "Add event") {
+                  await _addedEvent();
+                  return;
+                }
+                if (widget.titleButton == "Modify" && widget.event != null) {
+                  await _editEvent();
+                  return;
                 }
               }
             },
           ),
         ]);
+  }
+
+  _addedEvent() async {
+    int id = await context.read<CalendarCubit>().getNewEventIndexByDateTime(widget.currentDateTime);
+    if (mounted) {
+      context.read<CalendarCubit>().addEventWrapper(
+            dateTime: widget.currentDateTime,
+            event: EventEntity(
+              id: id,
+              title: titleController.text,
+              startDateTime: startDateTime!,
+              endDateTime: endDateTime!,
+            ),
+          );
+
+      Navigator.pop(context);
+    }
+  }
+
+  _editEvent() async {
+    context.read<CalendarCubit>().editEvent(
+          widget.event!.copyWith(
+            title: titleController.text,
+            startDateTime: startDateTime!,
+            endDateTime: endDateTime!,
+          ),
+        );
+    Navigator.pop(context);
   }
 }

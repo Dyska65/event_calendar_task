@@ -72,8 +72,23 @@ class _HomePageState extends State<HomePage> {
                     }
                     return ListEvents(
                       events: state.events,
-                      onTapDelete: (event) =>
-                          BlocProvider.of<CalendarCubit>(context).removeEvent(event, focusedDay),
+                      onTapDelete: (event) => context.read<CalendarCubit>().removeEvent(event),
+                      onTapEdit: (event) async {
+                        if (mounted) {
+                          showDialog(
+                            context: context,
+                            builder: (c) => BlocProvider.value(
+                              value: context.read<CalendarCubit>(),
+                              child: EventDialog(
+                                currentDateTime: focusedDay,
+                                idNewEntity: event.id,
+                                event: event,
+                                titleButton: "Modify",
+                              ),
+                            ),
+                          );
+                        }
+                      },
                     );
                   },
                 ),
@@ -91,9 +106,10 @@ class _HomePageState extends State<HomePage> {
               context: context,
               builder: (c) => BlocProvider.value(
                 value: context.read<CalendarCubit>(),
-                child: AddEventDialog(
+                child: EventDialog(
                   currentDateTime: focusedDay,
                   idNewEntity: idNewEntity,
+                  titleButton: "Add event",
                 ),
               ),
             );

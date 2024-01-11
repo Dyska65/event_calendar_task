@@ -42,17 +42,46 @@ class CalendarCubit extends Cubit<CalendarState> {
     }
   }
 
-  Future<void> removeEvent(EventEntity event, DateTime currentDateTime) async {
-    emit(
-      CalendarLoading(events: state.events),
-    );
+  Future<void> removeEvent(EventEntity event) async {
+    emit(CalendarLoading(events: state.events));
     try {
-      List<EventEntity> events = await _getEventsByDay(currentDateTime);
-      events.removeWhere((element) => element.id == event.id);
+      int durationEvent = DateUtils.dateOnly(event.endDateTime)
+          .difference(DateUtils.dateOnly(event.startDateTime))
+          .inDays;
+      for (var i = 0; i <= durationEvent; i++) {
+        final DateTime date = DateUtils.addDaysToDate(event.startDateTime, i);
+        await _saveEventsByDay(date, [
+          ...await _getEventsByDay(date)
+            ..removeWhere((element) => element.id == event.id)
+        ]);
+      }
 
-      _saveEventsByDay(currentDateTime, events);
+      emit(
+        CalendarSuccess(
+            events: [...state.events..removeWhere((element) => element.id == event.id)]),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+      emit(CalendarError(errorMessage: e.toString(), events: state.events));
+    }
+  }
 
-      emit(CalendarSuccess(events: events));
+  Future<void> editEvent(EventEntity event) async {
+    emit(CalendarLoading(events: state.events));
+    try {
+      EventEntity oldEvent = state.events.firstWhere((element) => element.id == event.id);
+      await removeEvent(oldEvent);
+
+      int durationEvent = DateUtils.dateOnly(event.endDateTime)
+          .difference(DateUtils.dateOnly(event.startDateTime))
+          .inDays;
+
+      for (var i = 0; i <= durationEvent; i++) {
+        final DateTime date = DateUtils.addDaysToDate(event.startDateTime, i);
+        _saveEventsByDay(date, [...await _getEventsByDay(date), event]);
+      }
+
+      emit(CalendarSuccess(events: [...state.events, event]));
     } catch (e) {
       debugPrint(e.toString());
       emit(CalendarError(errorMessage: e.toString(), events: state.events));

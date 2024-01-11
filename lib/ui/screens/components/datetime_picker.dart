@@ -2,28 +2,26 @@ import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class DateTimePicker extends StatefulWidget {
+class DateTimePicker extends StatelessWidget {
   final String title;
   final Function(DateTime) onChanged;
+  final DateTime? initialValue;
   const DateTimePicker({
     super.key,
     required this.title,
     required this.onChanged,
+    this.initialValue,
   });
 
   @override
-  State<DateTimePicker> createState() => _DateTimePickerState();
-}
-
-class _DateTimePickerState extends State<DateTimePicker> {
-  @override
   Widget build(BuildContext context) {
     return DateTimeField(
+      initialValue: initialValue,
       validator: (value) => value == null ? "This field cantbe empty" : null,
       decoration: InputDecoration(
         isDense: true,
         hoverColor: Colors.transparent,
-        hintText: widget.title,
+        hintText: title,
       ),
       format: DateFormat("dd-MM-yyyy HH:mm"),
       onShowPicker: (context, currentValue) async =>
@@ -35,10 +33,10 @@ class _DateTimePickerState extends State<DateTimePicker> {
     final DateTime? date = await showDatePicker(
       context: context,
       firstDate: DateTime(2024),
-      initialDate: DateTime.now(),
+      initialDate: initialValue ?? DateTime.now(),
       lastDate: DateTime(2025),
     );
-    if (date != null && mounted) {
+    if (date != null && context.mounted) {
       final TimeOfDay? time = await showTimePicker(
         context: context,
         builder: (BuildContext context, Widget? child) {
@@ -51,10 +49,10 @@ class _DateTimePickerState extends State<DateTimePicker> {
         initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
       );
       DateTime? newDate = DateTimeField.combine(date, time);
-      widget.onChanged(newDate);
+      onChanged(newDate);
       return newDate;
     }
-    widget.onChanged(DateTime.now());
+    onChanged(DateTime.now());
     return DateTime.now();
   }
 }
