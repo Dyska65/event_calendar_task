@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
                         calendarFormat: calendarFormat,
                         selectedDayPredicate: (day) => isSameDay(day, focusedDay),
                         onDaySelected: (selected, focused) => onDaySelected(selected),
-                        onPageChanged: (dateTime) => setState(() => headerDateTime = dateTime),
+                        onPageChanged: (dateTime) => onPageChanged(dateTime),
                         onCalendarCreated: (pageController) => calendarController = pageController,
                       )),
                 Divider(
@@ -151,6 +151,11 @@ class _HomePageState extends State<HomePage> {
         icon: const Icon(Icons.chevron_right),
       )
     ]);
+  }
+
+  onPageChanged(DateTime dateTime) {
+    setState(() => headerDateTime = dateTime);
+    context.read<CalendarCubit>().getEventsByDayWrapper(dateTime);
   }
 
   changeCalendarFormat(CalendarPeriod calendarPeriod) {
