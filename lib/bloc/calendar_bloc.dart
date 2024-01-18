@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -100,20 +102,25 @@ class CalendarCubit extends Cubit<CalendarState> {
 
   Future<List<EventEntity>> _getEventsByDay(DateTime dateTime) async {
     String keyDateTime = dateTimeToKeySharedPrefManager(dateTime);
-    List? dataFromSharedPref = await SharedPrefManager.get(key: keyDateTime);
+    List<String>? dataFromSharedPref = await SharedPrefManager.get(key: keyDateTime);
 
     if (dataFromSharedPref == null) {
       return [];
     }
 
-    List<EventEntity> events =
-        dataFromSharedPref.map<EventEntity>((element) => EventEntity.fromJson(element)).toList();
+    List<EventEntity> events = dataFromSharedPref.map<EventEntity>((element) {
+      print(element.toString() + "!!!!!!!!23");
+      final Map<String, dynamic> json = jsonDecode(element);
+      print(json.toString() + "!!!!!!!!23");
+
+      return EventEntity.fromJson(json);
+    }).toList();
     return events;
   }
 
   Future<void> _saveEventsByDay(DateTime dateTime, List<EventEntity> events) async {
     SharedPrefManager.save(
         key: dateTimeToKeySharedPrefManager(dateTime),
-        value: events.map<String>((EventEntity e) => e.toJson()).toList());
+        value: events.map<String>((EventEntity e) => jsonEncode(e.toJson())).toList());
   }
 }

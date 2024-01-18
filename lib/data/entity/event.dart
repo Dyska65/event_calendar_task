@@ -1,54 +1,25 @@
+// ignore_for_file: invalid_annotation_target
+
 import 'dart:convert';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class EventEntity {
-  final int id;
-  final String title;
-  final DateTime startDateTime;
-  final DateTime endDateTime;
+part 'event.freezed.dart';
+part 'event.g.dart';
 
-  EventEntity({
-    required this.id,
-    required this.title,
-    required this.startDateTime,
-    required this.endDateTime,
-  });
+@freezed
+class EventEntity with _$EventEntity {
+  const factory EventEntity({
+    required int id,
+    required String title,
+    @JsonKey(fromJson: intToDateTime, toJson: dateTimeToInt) required DateTime startDateTime,
+    @JsonKey(fromJson: intToDateTime, toJson: dateTimeToInt) required DateTime endDateTime,
+  }) = _EventEntity;
 
-  factory EventEntity.fromMap(Map<String, dynamic> json) {
-    return EventEntity(
-      id: json["id"],
-      title: json["title"],
-      startDateTime: DateTime.fromMicrosecondsSinceEpoch(json["startDateTime"]),
-      endDateTime: DateTime.fromMicrosecondsSinceEpoch(json["endDateTime"]),
-    );
-  }
-
-  Map<String, dynamic> toMap() => {
-        "id": id,
-        "title": title,
-        "startDateTime": startDateTime.microsecondsSinceEpoch,
-        "endDateTime": endDateTime.microsecondsSinceEpoch,
-      };
-
-  EventEntity copyWith({
-    int? id,
-    String? title,
-    DateTime? startDateTime,
-    DateTime? endDateTime,
-  }) {
-    return EventEntity(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      startDateTime: startDateTime ?? this.startDateTime,
-      endDateTime: endDateTime ?? this.endDateTime,
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory EventEntity.fromJson(String source) =>
-      EventEntity.fromMap(json.decode(source) as Map<String, dynamic>);
-
-  @override
-  String toString() =>
-      'Event(id: $id, title: $title, startDateTime: $startDateTime, endDateTime: $endDateTime)';
+  factory EventEntity.fromJson(Map<String, dynamic> json) => _$EventEntityFromJson(json);
+  const EventEntity._();
+  int get id2 => id;
+  factory EventEntity.fromJsonString(String json) => EventEntity.fromJson(jsonDecode(json));
 }
+
+DateTime intToDateTime(int value) => DateTime.fromMicrosecondsSinceEpoch(value);
+int dateTimeToInt(DateTime value) => value.microsecondsSinceEpoch;

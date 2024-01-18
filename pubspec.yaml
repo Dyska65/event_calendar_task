@@ -40,10 +40,16 @@ dependencies:
   shared_preferences: ^2.2.2
   datetime_picker_formfield: ^2.0.1
   intl: ^0.18.1
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.8.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  build_runner: any
+  freezed: ^2.4.6
+  json_serializable: ^6.7.1
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
